@@ -4,36 +4,30 @@ import axios from 'axios';
 import { serverurl } from '../../confs/serverurl';
 import { useNavigate } from 'react-router-dom';
 
-const RegistrationPage = () => {
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     try {
-        const data = {
-          email: email,
-          password: password,
-        };
-        const response = await axios.post(serverurl + 'users/add', data);
-        const token = response.data;
-        //save the token in the local storage. 
-        localStorage.setItem('token', token);
-        navigate('/dashboard');
-        // handle successful registration and token
-      } catch (err) {
-        console.error(err);
-        setError('Server error');
-      }
+      const data = {
+        email: email,
+        password: password,
+      };
+      const response = await axios.post(serverurl + 'users/login', data);
+      const token = response.data;
+      // save the token in the local storage
+      localStorage.setItem('token', token);
+      navigate('/dashboard');
+      // handle successful login and token
+    } catch (err) {
+      console.error(err);
+      setError('Invalid email or password');
+    }
   };
 
   return (
@@ -53,15 +47,8 @@ const RegistrationPage = () => {
           onChange={(event) => setPassword(event.target.value)}
           required
         />
-        <Input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(event) => setConfirmPassword(event.target.value)}
-          required
-        />
         {error && <Error>{error}</Error>}
-        <Button type="submit">Register</Button>
+        <Button type="submit">Login</Button>
       </Form>
     </Container>
   );
@@ -109,4 +96,4 @@ const Error = styled.p`
   color: red;
 `;
 
-export default RegistrationPage;
+export default LoginPage;
