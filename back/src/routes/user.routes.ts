@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
 import UserModel from '../models/user.model'; // assuming you have defined a user model
+import jwt from 'jsonwebtoken';
+import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
 router.post('/add', async (req: Request, res: Response) => {
-   console.log("CHEGOU AQUI");
-
     try {
         const { email, password } = req.body;
         // Check if the user already exists
@@ -16,17 +16,35 @@ router.post('/add', async (req: Request, res: Response) => {
 
         // Create a new user
         const newUser = new UserModel({email, password});
-
+        const token = jwt.sign({ id: newUser.id }, "mykey");
         // Save the user to the database
         await newUser.save();
 
         // Send the created user as a response
-        res.status(201).json(newUser);
+        res.status(201).json(token);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+router.get('/email', authMiddleware, async (req: Request & { user?: any }, res: Response) => {
+    try {
+      // Get the ID of the authenticated user from the request object
+      const userId = req.user.id;
+  
+      // Find the user by ID and return their email
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      const email = user.email;
+      res.json({ email });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
 
 router.get('/', async (req: Request, res: Response) => {
     try {

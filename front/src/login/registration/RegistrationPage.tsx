@@ -19,15 +19,17 @@ const RegistrationPage = () => {
 
     try {
         const data = {
-            email: email,
-            password: password,
-        }
-      await axios.post(serverurl + 'users/add', data);
-      // handle successful registration
-    } catch (err) {
-      console.error(err);
-      setError('Server error');
-    }
+          email: email,
+          password: password,
+        };
+        const response = await axios.post(serverurl + 'users/add', data);
+        const token = response.data;
+        alert(response.data);
+        // handle successful registration and token
+      } catch (err) {
+        console.error(err);
+        setError('Server error');
+      }
   };
 
   return (
