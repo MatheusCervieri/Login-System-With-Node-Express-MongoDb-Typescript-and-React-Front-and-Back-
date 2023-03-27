@@ -4,15 +4,28 @@ import UserModel from '../models/user.model'; // assuming you have defined a use
 const router = express.Router();
 
 router.post('/add', async (req: Request, res: Response) => {
-  try {
-    const { email, password } = req.body;
-    const user = new UserModel({ email, password });
-    await user.save();
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
-  }
+   console.log("CHEGOU AQUI");
+
+    try {
+        const { email, password } = req.body;
+        // Check if the user already exists
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ error: 'User already exists' });
+        }
+
+        // Create a new user
+        const newUser = new UserModel({email, password});
+
+        // Save the user to the database
+        await newUser.save();
+
+        // Send the created user as a response
+        res.status(201).json(newUser);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 router.get('/', async (req: Request, res: Response) => {
@@ -25,5 +38,4 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
   
-
 export default router;
