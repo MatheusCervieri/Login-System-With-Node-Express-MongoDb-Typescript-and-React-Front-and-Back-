@@ -19,7 +19,7 @@ router.post('/add', async (req: Request, res: Response) => {
         const token = jwt.sign({ id: newUser.id }, "mykey");
         // Save the user to the database
         await newUser.save();
-
+ 
         // Send the created user as a response
         res.status(201).json(token);
     } catch (err) {
